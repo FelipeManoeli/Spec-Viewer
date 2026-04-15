@@ -1,6 +1,6 @@
 ---
 name: spec-sync
-version: 0.1.0
+version: 0.1.1
 description: Reconcile screen specs against the frontend code. Walk routes, extract elements, fill semantics, propose a unified diff for user review.
 ---
 

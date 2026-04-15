@@ -1,6 +1,6 @@
 ---
 name: spec-init
-version: 0.1.0
+version: 0.1.1
 description: Scaffold spec-viewer config and specs folder in the current project
 ---
 

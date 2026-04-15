@@ -1,0 +1,22 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/v1.json",
+  "schemaVersion": 1,
+  "screen": "home",
+  "title": "Home",
+  "route": "/",
+  "module": "core",
+  "description": "Example spec. Replace with real screens via /spec-sync.",
+  "elements": [
+    {
+      "label": "Call to action",
+      "selector": "[data-testid=cta]",
+      "description": "Primary action on the home page",
+      "details": {
+        "type": "button",
+        "required": false,
+        "businessRules": [],
+        "errorMessages": []
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: spec-build
-version: 0.1.0
+version: 0.1.1
 description: Render the spec-viewer HTML artifact from the current spec set
 ---
 
