@@ -54,6 +54,8 @@ export function renderViewer(input: RenderInput): string {
     searchEmpty: strings.searchEmpty,
     searchGroupScreens: strings.searchGroupScreens,
     searchGroupElements: strings.searchGroupElements,
+    emptyScreenshotsBannerTitle: strings.emptyScreenshotsBannerTitle,
+    emptyScreenshotsBannerBody: strings.emptyScreenshotsBannerBody,
   });
 
   const titleEsc = escHtml(title);
@@ -170,6 +172,8 @@ input{font:inherit}
 .domain-screens{margin-left:8px}
 .main{flex:1;overflow:auto;min-height:0}
 .dashboard{padding:20px 24px;max-width:1200px;margin:0 auto}
+.cta-banner{margin-bottom:16px;padding:14px 18px;border-radius:10px;background:var(--accent-light);color:var(--accent-dark);border:1px solid var(--border);line-height:1.5;font-size:13px}
+.cta-banner strong{font-size:14px;display:block;margin-bottom:4px}
 .dash-module{margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);overflow:hidden}
 .dash-module-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;font-size:14px;font-weight:600}
 .dash-module-header:hover{background:var(--bg3)}
@@ -380,9 +384,19 @@ function showTab(tab) {
   }
 }
 
+function hasAnyScreenshots() {
+  for (const mod of D.modules) {
+    for (const sc of mod.screens) if (sc.img) return true;
+  }
+  return false;
+}
+
 function renderDashboard() {
   const main = document.getElementById('main');
   let html = '<div class="dashboard">';
+  if (D.modules.length > 0 && !hasAnyScreenshots()) {
+    html += '<div class="cta-banner"><strong>' + escHtml(S.emptyScreenshotsBannerTitle) + '</strong><br>' + escHtml(S.emptyScreenshotsBannerBody) + '</div>';
+  }
   for (const mod of D.modules) {
     html += '<div class="dash-module">';
     html += '<div class="dash-module-header open" onclick="toggleDashModule(\'' + mod.id + '\')">';

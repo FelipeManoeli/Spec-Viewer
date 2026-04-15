@@ -15,6 +15,8 @@ export interface Strings {
   generatedAt: string; // "Generated: {date}"
   screenCardCountSuffix: string; // "{n} elements"
   modCountSuffix: string; // "{n} screens"
+  emptyScreenshotsBannerTitle: string;
+  emptyScreenshotsBannerBody: string;
   // Screen view
   breadcrumbHome: string;
   metaRoutePrefix: string; // "📺"
@@ -54,6 +56,9 @@ export const EN: Strings = {
   generatedAt: "Generated",
   screenCardCountSuffix: "elements",
   modCountSuffix: "screens",
+  emptyScreenshotsBannerTitle: "No screenshots yet",
+  emptyScreenshotsBannerBody:
+    "Run /spec-capture (or `spec-viewer capture`) to populate this viewer with annotated screenshots from your running app.",
   breadcrumbHome: "All screens",
   metaRoutePrefix: "📺",
   metaElementsPrefix: "🏷️",
@@ -89,6 +94,9 @@ export const JA: Strings = {
   generatedAt: "最終生成",
   screenCardCountSuffix: "要素",
   modCountSuffix: "画面",
+  emptyScreenshotsBannerTitle: "スクリーンショットがありません",
+  emptyScreenshotsBannerBody:
+    "/spec-capture（または `spec-viewer capture`）を実行して、起動中のアプリから注釈付きスクリーンショットを取得してください。",
   breadcrumbHome: "画面一覧",
   metaRoutePrefix: "📺",
   metaElementsPrefix: "🏷️",
