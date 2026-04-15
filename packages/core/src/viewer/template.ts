@@ -129,7 +129,12 @@ const CSS = `
 :root{
   --bg:#f8fafc;--bg2:#fff;--bg3:#f1f5f9;--border:#e2e8f0;
   --text:#0f172a;--text2:#475569;--text3:#94a3b8;
-  --accent:__ACCENT__;--accent-light:#dcfce7;--accent-dark:#166534;
+  --accent:__ACCENT__;
+  /* Derived from --accent at runtime so any hex theme adapts. color-mix is
+     supported in Chrome 111+/Safari 16.4+/Firefox 113+ — every browser this
+     viewer targets. */
+  --accent-light:color-mix(in srgb, var(--accent) 15%, white);
+  --accent-dark:color-mix(in srgb, var(--accent) 70%, black);
   --red:#ef4444;--yellow:#eab308;--blue:#3b82f6;--orange:#f97316;--purple:#a855f7;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow:hidden;height:100vh}
