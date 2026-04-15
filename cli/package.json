@@ -1,0 +1,19 @@
+{
+  "name": "@spec-viewer/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "spec-viewer": "./dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "start": "node ./dist/bin.js"
+  },
+  "dependencies": {
+    "@spec-viewer/core": "*"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

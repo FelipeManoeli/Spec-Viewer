@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spec-viewer.dev/schema/v1.json",
+  "title": "spec-viewer spec file",
+  "description": "A single screen's spec. One file per screen.",
+  "type": "object",
+  "required": ["schemaVersion", "screen", "title", "route", "module", "elements"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "screen": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "route": { "type": "string", "minLength": 1 },
+    "module": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "navigation": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "auth": { "type": "boolean" },
+        "steps": { "type": "array", "items": { "$ref": "#/$defs/NavigationStep" } }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Element" }
+    }
+  },
+  "$defs": {
+    "Element": {
+      "type": "object",
+      "required": ["label", "selector"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "selector": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "details": { "$ref": "#/$defs/ElementDetails" }
+      }
+    },
+    "ElementDetails": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["button", "input", "select", "textarea", "link", "form", "modal-trigger", "checkbox", "radio", "toggle", "tab", "other"]
+        },
+        "required": { "type": "boolean" },
+        "businessRules": { "type": "array", "items": { "type": "string" } },
+        "errorMessages": { "type": "array", "items": { "type": "string" } },
+        "validation": { "type": "string" },
+        "linkedScreen": { "type": ["string", "null"] },
+        "rawHtmlAllowed": { "type": "boolean" }
+      }
+    },
+    "NavigationStep": {
+      "type": "object",
+      "required": ["label", "action"],
+      "properties": {
+        "label": { "type": "string" },
+        "action": { "type": "string", "enum": ["click", "fill", "waitFor", "navigate"] },
+        "selector": { "type": "string" },
+        "value": { "type": "string" },
+        "target": { "type": "string" }
+      }
+    }
+  }
+}

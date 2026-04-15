@@ -1,0 +1,31 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/config.v1.json",
+  "branding": {
+    "title": "Synthetic Fixture Specs",
+    "accentColor": "#10b981",
+    "locale": "en"
+  },
+  "paths": {
+    "frontend": "app",
+    "specs": ".claude/spec-viewer/specs",
+    "output": "spec-viewer-output"
+  },
+  "taxonomy": {
+    "modules": [
+      {
+        "id": "core",
+        "name": "Core",
+        "domains": [
+          "home"
+        ]
+      },
+      {
+        "id": "contacts",
+        "name": "Contacts",
+        "domains": [
+          "contact"
+        ]
+      }
+    ]
+  }
+}

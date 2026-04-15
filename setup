@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# spec-viewer setup
+#
+# - Verifies Node >= 20 + npm
+# - Installs npm deps + builds the TypeScript sources
+# - Creates the bin/spec-viewer wrapper Claude invokes
+# - Registers each skill at ~/.claude/skills/<name>/SKILL.md (the path
+#   Claude Code actually discovers)
+#
+# Idempotent: safe to re-run after `git pull`.
+
+set -euo pipefail
+
+INSTALL_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILLS_DIR="${SPEC_VIEWER_SKILLS_DIR:-$HOME/.claude/skills}"
+
+# ── Preflight ─────────────────────────────────────────────────────────────────
+NODE_VER=$(node -v 2>/dev/null || echo "v0")
+NODE_MAJOR=$(echo "$NODE_VER" | sed 's/^v//;s/\..*//')
+if [ "$NODE_MAJOR" -lt 20 ] 2>/dev/null; then
+  echo "✗ Node >= 20 required (found: $NODE_VER)" >&2
+  echo "  Install via your package manager or https://nodejs.org/" >&2
+  exit 1
+fi
+command -v npm >/dev/null 2>&1 || { echo "✗ npm not found on PATH" >&2; exit 1; }
+
+echo "spec-viewer setup"
+echo "  Source: $INSTALL_DIR"
+echo "  Skills: $SKILLS_DIR"
+echo "  Node:   $NODE_VER"
+echo
+
+# ── Install + build ──────────────────────────────────────────────────────────
+cd "$INSTALL_DIR"
+echo "▸ Installing npm dependencies..."
+npm install --silent --no-audit --no-fund
+
+echo "▸ Building TypeScript projects..."
+npm run -s build
+
+# ── Binary shim ──────────────────────────────────────────────────────────────
+mkdir -p "$INSTALL_DIR/bin"
+SHIM="$INSTALL_DIR/bin/spec-viewer"
+cat > "$SHIM" <<'EOF'
+#!/usr/bin/env bash
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec node "$DIR/../cli/dist/bin.js" "$@"
+EOF
+chmod +x "$SHIM"
+
+# Self-check
+"$SHIM" --version >/dev/null 2>&1 || {
+  echo "✗ Binary self-check failed. Try 'npm run build' and re-run ./setup." >&2
+  exit 1
+}
+
+# ── Register skills ──────────────────────────────────────────────────────────
+mkdir -p "$SKILLS_DIR"
+echo
+echo "▸ Registering skills in $SKILLS_DIR:"
+for skill_md in "$INSTALL_DIR"/spec-*/SKILL.md; do
+  [ -f "$skill_md" ] || continue
+  name=$(basename "$(dirname "$skill_md")")
+  mkdir -p "$SKILLS_DIR/$name"
+  ln -sfn "$skill_md" "$SKILLS_DIR/$name/SKILL.md"
+  echo "  /$name"
+done
+
+# ── Done ─────────────────────────────────────────────────────────────────────
+echo
+echo "✓ Setup complete"
+echo
+echo "Test the install:"
+echo "  $SHIM doctor"
+echo
+echo "Use in any project:"
+echo "  /spec-init       scaffold config + branding"
+echo "  /spec-theme      tweak colors anytime"
+echo "  /spec-capture    screenshot a running app (needs Playwright in your project)"
+echo "  /spec-build      render the viewer"
+echo
+echo "If skills don't appear in Claude Code, restart the session."

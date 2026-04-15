@@ -1,0 +1,29 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/v1.json",
+  "schemaVersion": 1,
+  "screen": "home",
+  "title": "Home",
+  "route": "/",
+  "module": "core",
+  "description": "Landing page shown to signed-out users.",
+  "elements": [
+    {
+      "label": "Sign in button",
+      "selector": "[data-testid=signin-button]",
+      "description": "Opens the sign-in modal.",
+      "details": {
+        "type": "modal-trigger",
+        "required": false,
+        "linkedScreen": null
+      }
+    },
+    {
+      "label": "Get started link",
+      "selector": "[data-testid=get-started]",
+      "description": "Navigates new users to signup.",
+      "details": {
+        "type": "link"
+      }
+    }
+  ]
+}

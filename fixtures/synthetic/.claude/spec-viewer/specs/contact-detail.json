@@ -1,0 +1,28 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/v1.json",
+  "schemaVersion": 1,
+  "screen": "contact-detail",
+  "title": "Contact Detail",
+  "route": "/contacts/:id",
+  "module": "contacts",
+  "description": "Single-contact view with edit and delete actions.",
+  "elements": [
+    {
+      "label": "Edit button",
+      "selector": "[data-testid=edit-contact]",
+      "details": {
+        "type": "button",
+        "businessRules": ["Disabled if user lacks contact:write permission"]
+      }
+    },
+    {
+      "label": "Delete button",
+      "selector": "[data-testid=delete-contact]",
+      "details": {
+        "type": "button",
+        "businessRules": ["Requires contact:delete permission", "Prompts for confirmation before delete"],
+        "errorMessages": ["Contact is referenced by 3 deals and cannot be deleted"]
+      }
+    }
+  ]
+}

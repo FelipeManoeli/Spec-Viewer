@@ -1,0 +1,32 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/v1.json",
+  "schemaVersion": 1,
+  "screen": "contact-list",
+  "title": "Contacts",
+  "route": "/contacts",
+  "module": "contacts",
+  "description": "Paginated list of all contacts the user can see.",
+  "elements": [
+    {
+      "label": "Search input",
+      "selector": "[data-testid=contact-search]",
+      "description": "Filters the list by name or email.",
+      "details": {
+        "type": "input",
+        "required": false,
+        "businessRules": ["Debounces 200ms before querying"]
+      }
+    },
+    {
+      "label": "New contact button",
+      "selector": "[data-testid=new-contact]",
+      "description": "Opens the new-contact form.",
+      "details": {
+        "type": "button",
+        "required": false,
+        "businessRules": ["Requires contact:write permission"],
+        "linkedScreen": "contact-detail"
+      }
+    }
+  ]
+}
