@@ -14,6 +14,7 @@ import { errorExit, formatError } from "../lib/errors.js";
 import { loadConfig } from "../lib/config.js";
 import { loadSpecs } from "../lib/specs.js";
 import { extractFlag, resolveCwd } from "../lib/args.js";
+import { checkPlaywright } from "../lib/playwright-check.js";
 import type { SpecFile, CoverageReport, NavigationStep } from "@spec-viewer/core";
 
 interface CaptureOptions {
@@ -29,6 +30,24 @@ export async function cmdCapture(args: string[]): Promise<number> {
   if (routeVal) opts.routeFilter = routeVal;
 
   const cwd = resolveCwd(args);
+
+  // Preflight Playwright BEFORE we load config / discover specs. The user
+  // shouldn't run through auth setup just to find chromium isn't installed.
+  const pw = await checkPlaywright();
+  if (!pw.ok) {
+    errorExit(
+      {
+        problem:
+          pw.reason === "package-missing"
+            ? "Playwright is not installed"
+            : "Playwright chromium binary is missing",
+        cause: pw.detail,
+        fix: pw.fix,
+      },
+      2
+    );
+  }
+
   const { config, projectRoot } = await loadConfig(cwd, opts.configOverride);
 
   if (!config.capture) {
@@ -74,20 +93,8 @@ export async function cmdCapture(args: string[]): Promise<number> {
   fs.mkdirSync(screenshotsDir, { recursive: true });
   fs.mkdirSync(coverageDir, { recursive: true });
 
-  // Lazy-load Playwright so a missing install only errors if you run capture.
-  let chromium: typeof import("playwright").chromium;
-  try {
-    ({ chromium } = await import("playwright"));
-  } catch (e) {
-    errorExit(
-      {
-        problem: "Playwright is not installed",
-        cause: "spec-viewer capture requires the optional `playwright` package",
-        fix: "Install it in your project: `npm install --save-dev playwright && npx playwright install chromium`",
-      },
-      2
-    );
-  }
+  // Playwright already verified by the preflight above.
+  const { chromium } = await import("playwright");
 
   // Lazy-load annotator + auth after Playwright resolves so they aren't
   // pulled in on machines that never run capture.
