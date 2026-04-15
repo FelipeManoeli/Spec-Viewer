@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { CLI_VERSION } from "../version.js";
 import { DISCOVERY_PATHS } from "../lib/config.js";
+import { checkPlaywright } from "../lib/playwright-check.js";
 
 export async function cmdDoctor(_args: string[]): Promise<number> {
   const cwd = process.cwd();
@@ -26,6 +27,19 @@ export async function cmdDoctor(_args: string[]): Promise<number> {
   }
 
   lines.push("");
+  // Playwright check: capture is the only place Playwright is required, so
+  // surface it as informational unless the user is about to run capture.
+  lines.push("Playwright (needed for /spec-capture):");
+  const pw = await checkPlaywright();
+  if (pw.ok) {
+    lines.push(`  ✓ chromium ready at ${pw.executablePath}`);
+  } else {
+    lines.push(`  ! ${pw.reason === "package-missing" ? "package not installed" : "browser binary missing"}`);
+    lines.push(`    ${pw.detail}`);
+    lines.push(`    Fix: ${pw.fix}`);
+  }
+  lines.push("");
+
   const nodeMajor = Number(process.version.slice(1).split(".")[0]);
   if (nodeMajor < 20) {
     lines.push("✗ Node >= 20 required");

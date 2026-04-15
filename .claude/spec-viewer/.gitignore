@@ -1,0 +1,6 @@
+# spec-viewer per-user override (never commit secrets)
+local.json
+spec-viewer.local.json
+
+# generated viewer artefacts
+spec-viewer-output/

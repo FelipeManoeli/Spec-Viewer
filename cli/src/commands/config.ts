@@ -5,6 +5,7 @@
 import { PRESETS, getPreset, isValidHexColor } from "@spec-viewer/core";
 import { loadConfig } from "../lib/config.js";
 import { errorExit, formatError } from "../lib/errors.js";
+import { resolveCwd } from "../lib/args.js";
 import {
   coerceForKey,
   getAt,
@@ -50,8 +51,8 @@ export async function cmdConfig(args: string[]): Promise<number> {
 }
 
 async function cmdGet(args: string[]): Promise<number> {
-  const key = args[0];
-  const { config } = await loadConfig(process.cwd());
+  const key = positional(args);
+  const { config } = await loadConfig(resolveCwd(args));
   if (!key) {
     process.stdout.write(JSON.stringify(config, null, 2) + "\n");
     return 0;
@@ -67,11 +68,12 @@ async function cmdGet(args: string[]): Promise<number> {
 }
 
 async function cmdSet(args: string[]): Promise<number> {
-  const [key, raw] = args;
+  const positionals = positionalAll(args);
+  const [key, raw] = positionals;
   if (!key || raw === undefined) {
     errorExit(`Usage: spec-viewer config set <key> <value>\n\n${SUB_USAGE}`, 64);
   }
-  const { path: configPath } = await loadConfig(process.cwd());
+  const { path: configPath } = await loadConfig(resolveCwd(args));
 
   // Validate known keys with extra rules (helpful errors before generic
   // schema validation kicks in).
@@ -116,7 +118,7 @@ function cmdPresetsList(): number {
 }
 
 async function cmdApplyPreset(args: string[]): Promise<number> {
-  const id = args[0];
+  const id = positional(args);
   if (!id) errorExit("Usage: spec-viewer config apply-preset <preset-id>", 64);
   const preset = getPreset(id);
   if (!preset) {
@@ -128,7 +130,7 @@ async function cmdApplyPreset(args: string[]): Promise<number> {
       2
     );
   }
-  const { path: configPath } = await loadConfig(process.cwd());
+  const { path: configPath } = await loadConfig(resolveCwd(args));
   const cfg = readConfigJson(configPath);
   setAt(cfg, "branding.accentColor", preset.accentColor);
   writeConfigJson(configPath, cfg);
@@ -136,6 +138,29 @@ async function cmdApplyPreset(args: string[]): Promise<number> {
     `✓ Applied preset "${preset.name}" (${preset.accentColor})\n  Run \`spec-viewer build\` to re-render with the new color.\n`
   );
   return 0;
+}
+
+/**
+ * Drop `--flag value` pairs from args and return the remaining positional
+ * arguments. Lets `config get branding.accentColor --cwd /repo` work without
+ * the --cwd value bleeding into the positional slot.
+ */
+function positionalAll(args: string[]): string[] {
+  const FLAGS_WITH_VALUE = new Set(["--cwd", "--config"]);
+  const out: string[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i] as string;
+    if (FLAGS_WITH_VALUE.has(a)) {
+      i++; // skip the flag's value
+      continue;
+    }
+    if (a.startsWith("--")) continue; // boolean flag
+    out.push(a);
+  }
+  return out;
+}
+function positional(args: string[]): string | undefined {
+  return positionalAll(args)[0];
 }
 
 // Tiny ANSI swatch so the presets list shows a real color block.

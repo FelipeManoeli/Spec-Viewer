@@ -1,6 +1,6 @@
 ---
 name: spec-init
-version: 0.1.0
+version: 0.1.1
 description: Scaffold spec-viewer config and specs folder in the current project
 ---
 
@@ -48,10 +48,27 @@ Read `~/.claude/skills/spec-viewer/_shared/PREAMBLE.md` first — binary discove
    "$SV" init --title "<title>" --preset emerald --locale en
    ```
 
-5. **Report what was created** (config path, specs dir, example spec, CONVENTIONS.md, applied branding). Suggest `/spec-build` as the next step (or `/spec-capture` first if a dev server is running).
+5. **Report what was created** (config path, specs dir, example spec, CONVENTIONS.md, `local.json.example`, `.gitignore`, applied branding).
+
+6. **Capture-readiness onboarding.** A built viewer with no screenshots looks broken (no thumbnails, no badges). Walk the user through capture before they hit `/spec-build`:
+
+   a. Run `"$SV" doctor` and inspect the Playwright section.
+      - If `! browser binary missing` or `! package not installed`, surface the exact `Fix:` line via AskUserQuestion:
+        > Capture (annotated screenshots) needs Playwright + chromium. They aren't installed yet. The fix is `<copied command>` (~300MB download, ~1 minute).
+        > A) Install now (recommended)  B) Skip — I'll capture later
+
+   b. If Playwright is ready, ask about the dev server:
+      > Do you have a dev server running for this project? Capture needs it (otherwise the viewer renders with placeholder boxes and no real screenshots).
+      > A) Yes, it's running at <baseUrl>  B) No — I'll capture later  C) Walk me through starting it (look at package.json scripts and propose the dev command)
+
+   c. If both Playwright AND a dev server are ready, chain into `/spec-capture` immediately so the user sees a populated viewer on first build.
+
+   d. Otherwise, run `"$SV" build` so the user gets *something* to look at — the viewer now shows an empty-state CTA banner pointing at `/spec-capture` so the next steps are obvious.
+
+7. **Tell the user what's next**: either "your viewer is at `<output>/index.html`" (capture ran) or "run `/spec-capture` once your dev server is up, then `/spec-build`" (capture skipped).
 
 ## Completion
 
-- **DONE** — config + specs dir + example + conventions all exist with user-confirmed branding; user knows next step.
-- **DONE_WITH_CONCERNS** — created with defaults because user skipped onboarding; suggest `/spec-theme` later.
+- **DONE** — config + specs dir + example + conventions all exist with user-confirmed branding; capture either ran or user knows the exact next step (with install commands if needed).
+- **DONE_WITH_CONCERNS** — capture skipped because Playwright or dev-server not ready; user has the install/start commands.
 - **BLOCKED** — binary missing; tell user to run `./setup` in the spec-viewer repo.

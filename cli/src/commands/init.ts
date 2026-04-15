@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getPreset, isValidHexColor } from "@spec-viewer/core";
 import { errorExit } from "../lib/errors.js";
+import { resolveCwd } from "../lib/args.js";
 
 const DEFAULT_TITLE = "My Project Specs";
 const DEFAULT_ACCENT = "#10b981";
@@ -120,10 +121,34 @@ Describe your permission check pattern (e.g., \`can('write', 'contacts')\`).
 ## Elements to skip
 - Storybook-only components
 - Dev-tools panels
+
+## Two-file config
+
+This directory has two configuration files:
+
+- **\`config.json\`** (committed) — branding, taxonomy, paths, capture selectors. Same for everyone.
+- **\`local.json\`** (gitignored) — credentials and per-user overrides. Copy from \`local.json.example\`.
+
+Local deep-merges over committed at load time. Any string in either file may use \`\${ENV_VAR}\` to pull from \`process.env\`.
+`;
+
+const LOCAL_EXAMPLE = `{
+  "$comment": "Copy this file to local.json (gitignored) and fill in real values. Anything you set here deep-merges over config.json.",
+
+  "$comment_capture": "Capture credentials. Selectors live in config.json; values live here.",
+  "capture": {
+    "auth": {
+      "fields": {
+        "email":    { "value": "you@example.com" },
+        "password": { "value": "\${DEV_PASSWORD}" }
+      }
+    }
+  }
+}
 `;
 
 export async function cmdInit(args: string[]): Promise<number> {
-  const cwd = process.cwd();
+  const cwd = resolveCwd(args);
   const opts = parseFlags(args);
   const dir = path.join(cwd, ".claude/spec-viewer");
   const configPath = path.join(dir, "config.json");
@@ -148,6 +173,14 @@ export async function cmdInit(args: string[]): Promise<number> {
   fs.writeFileSync(examplePath, JSON.stringify(EXAMPLE_SPEC, null, 2) + "\n");
   if (!fs.existsSync(conventionsPath)) {
     fs.writeFileSync(conventionsPath, CONVENTIONS);
+  }
+
+  // Scaffold local.json.example so users see the credential split clearly.
+  // Never write local.json itself — that's the user's call (and would muddy the
+  // gitignore intent).
+  const localExamplePath = path.join(dir, "local.json.example");
+  if (!fs.existsSync(localExamplePath)) {
+    fs.writeFileSync(localExamplePath, LOCAL_EXAMPLE);
   }
 
   // .gitignore inside the spec-viewer dir keeps per-user state out of the
@@ -176,6 +209,7 @@ export async function cmdInit(args: string[]): Promise<number> {
       `  Specs dir:   ${path.relative(cwd, specsDir)}/`,
       `  Example:     ${path.relative(cwd, examplePath)}`,
       `  Conventions: ${path.relative(cwd, conventionsPath)}`,
+      `  Local example: ${path.relative(cwd, localExamplePath)}  (cp to local.json + fill in credentials)`,
       `  Gitignore:   ${path.relative(cwd, gitignorePath)}`,
       "",
       `  Title:       ${opts.title}`,

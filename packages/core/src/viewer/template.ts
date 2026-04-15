@@ -54,6 +54,8 @@ export function renderViewer(input: RenderInput): string {
     searchEmpty: strings.searchEmpty,
     searchGroupScreens: strings.searchGroupScreens,
     searchGroupElements: strings.searchGroupElements,
+    emptyScreenshotsBannerTitle: strings.emptyScreenshotsBannerTitle,
+    emptyScreenshotsBannerBody: strings.emptyScreenshotsBannerBody,
   });
 
   const titleEsc = escHtml(title);
@@ -129,7 +131,12 @@ const CSS = `
 :root{
   --bg:#f8fafc;--bg2:#fff;--bg3:#f1f5f9;--border:#e2e8f0;
   --text:#0f172a;--text2:#475569;--text3:#94a3b8;
-  --accent:__ACCENT__;--accent-light:#dcfce7;--accent-dark:#166534;
+  --accent:__ACCENT__;
+  /* Derived from --accent at runtime so any hex theme adapts. color-mix is
+     supported in Chrome 111+/Safari 16.4+/Firefox 113+ — every browser this
+     viewer targets. */
+  --accent-light:color-mix(in srgb, var(--accent) 15%, white);
+  --accent-dark:color-mix(in srgb, var(--accent) 70%, black);
   --red:#ef4444;--yellow:#eab308;--blue:#3b82f6;--orange:#f97316;--purple:#a855f7;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow:hidden;height:100vh}
@@ -165,6 +172,8 @@ input{font:inherit}
 .domain-screens{margin-left:8px}
 .main{flex:1;overflow:auto;min-height:0}
 .dashboard{padding:20px 24px;max-width:1200px;margin:0 auto}
+.cta-banner{margin-bottom:16px;padding:14px 18px;border-radius:10px;background:var(--accent-light);color:var(--accent-dark);border:1px solid var(--border);line-height:1.5;font-size:13px}
+.cta-banner strong{font-size:14px;display:block;margin-bottom:4px}
 .dash-module{margin-bottom:8px;border:1px solid var(--border);border-radius:10px;background:var(--bg2);overflow:hidden}
 .dash-module-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;font-size:14px;font-weight:600}
 .dash-module-header:hover{background:var(--bg3)}
@@ -375,9 +384,19 @@ function showTab(tab) {
   }
 }
 
+function hasAnyScreenshots() {
+  for (const mod of D.modules) {
+    for (const sc of mod.screens) if (sc.img) return true;
+  }
+  return false;
+}
+
 function renderDashboard() {
   const main = document.getElementById('main');
   let html = '<div class="dashboard">';
+  if (D.modules.length > 0 && !hasAnyScreenshots()) {
+    html += '<div class="cta-banner"><strong>' + escHtml(S.emptyScreenshotsBannerTitle) + '</strong><br>' + escHtml(S.emptyScreenshotsBannerBody) + '</div>';
+  }
   for (const mod of D.modules) {
     html += '<div class="dash-module">';
     html += '<div class="dash-module-header open" onclick="toggleDashModule(\'' + mod.id + '\')">';

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://spec-viewer.dev/schema/config.v1.json",
+  "branding": {
+    "title": "Test",
+    "accentColor": "#f43f5e",
+    "locale": "en"
+  },
+  "paths": {
+    "frontend": "src",
+    "specs": ".claude/spec-viewer/specs",
+    "output": "spec-viewer-output"
+  },
+  "taxonomy": {
+    "modules": [
+      {
+        "id": "core",
+        "name": "Core",
+        "domains": []
+      }
+    ]
+  }
+}
