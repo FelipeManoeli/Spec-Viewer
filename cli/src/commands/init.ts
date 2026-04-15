@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { getPreset, isValidHexColor } from "@spec-viewer/core";
 import { errorExit } from "../lib/errors.js";
+import { resolveCwd } from "../lib/args.js";
 
 const DEFAULT_TITLE = "My Project Specs";
 const DEFAULT_ACCENT = "#10b981";
@@ -123,7 +124,7 @@ Describe your permission check pattern (e.g., \`can('write', 'contacts')\`).
 `;
 
 export async function cmdInit(args: string[]): Promise<number> {
-  const cwd = process.cwd();
+  const cwd = resolveCwd(args);
   const opts = parseFlags(args);
   const dir = path.join(cwd, ".claude/spec-viewer");
   const configPath = path.join(dir, "config.json");

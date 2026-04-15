@@ -13,7 +13,7 @@ import path from "node:path";
 import { errorExit, formatError } from "../lib/errors.js";
 import { loadConfig } from "../lib/config.js";
 import { loadSpecs } from "../lib/specs.js";
-import { extractFlag } from "../lib/args.js";
+import { extractFlag, resolveCwd } from "../lib/args.js";
 import type { SpecFile, CoverageReport, NavigationStep } from "@spec-viewer/core";
 
 interface CaptureOptions {
@@ -28,7 +28,7 @@ export async function cmdCapture(args: string[]): Promise<number> {
   const routeVal = extractFlag(args, "--route");
   if (routeVal) opts.routeFilter = routeVal;
 
-  const cwd = process.cwd();
+  const cwd = resolveCwd(args);
   const { config, projectRoot } = await loadConfig(cwd, opts.configOverride);
 
   if (!config.capture) {

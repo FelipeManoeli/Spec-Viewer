@@ -5,11 +5,11 @@ import type { CoverageReport } from "@spec-viewer/core";
 import { loadConfig } from "../lib/config.js";
 import { loadSpecs } from "../lib/specs.js";
 import { errorExit } from "../lib/errors.js";
-import { extractFlag } from "../lib/args.js";
+import { extractFlag, resolveCwd } from "../lib/args.js";
 
 export async function cmdBuild(args: string[]): Promise<number> {
   const configOverride = extractFlag(args, "--config");
-  const cwd = process.cwd();
+  const cwd = resolveCwd(args);
   const { config, projectRoot } = await loadConfig(cwd, configOverride);
 
   const specsDir = path.resolve(projectRoot, config.paths.specs);

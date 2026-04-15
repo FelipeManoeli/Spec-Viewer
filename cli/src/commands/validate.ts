@@ -1,11 +1,11 @@
 import path from "node:path";
 import { loadConfig } from "../lib/config.js";
 import { loadSpecs } from "../lib/specs.js";
-import { extractFlag } from "../lib/args.js";
+import { extractFlag, resolveCwd } from "../lib/args.js";
 
 export async function cmdValidate(args: string[]): Promise<number> {
   const configOverride = extractFlag(args, "--config");
-  const cwd = process.cwd();
+  const cwd = resolveCwd(args);
   const { config, path: configPath, projectRoot } = await loadConfig(cwd, configOverride);
 
   const specsDir = path.resolve(projectRoot, config.paths.specs);
