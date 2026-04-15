@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 — auto-install chromium during ./setup
+
+Same fix gstack uses: `./setup` now downloads Playwright's chromium-headless-shell (~92MB) automatically so `/spec-capture` works on first invocation, no second prompt mid-flow. Verifies before installing (idempotent under `git pull && ./setup`) and verifies again after to surface the rare failure case.
+
+- **`./setup`**: auto-runs `npx playwright install chromium` if the binary is missing. Pass `--skip-browser` to opt out (good for users who only need `/spec-init` and `/spec-build`).
+- **`/spec-init` skill**: now expects chromium ready out-of-the-box, only prompts for the install command in the `--skip-browser` edge case.
+- README updated to make the auto-install behavior explicit upfront.
+
+The 0.1.1 friction (capture failing after the user invested time in auth setup) is now a one-time setup cost the user already accepted by running `./setup`.
+
 ## 0.1.1 — onboarding-friendly v0.1
 
 Fixes from the first real-world dogfood (WatchCRM, agent-driven). Every issue surfaced in `notes/docs/spec-viewer-test-report.md` is addressed.

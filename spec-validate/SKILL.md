@@ -1,6 +1,6 @@
 ---
 name: spec-validate
-version: 0.1.1
+version: 0.1.2
 description: Check spec files and config against the schema
 ---
 
