@@ -1,6 +1,6 @@
 ---
 name: spec-theme
-version: 0.1.1
+version: 0.1.2
 description: Configure project name, accent color, and locale. Pick a preset, infer from the existing codebase, or set custom values.
 ---
 

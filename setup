@@ -3,6 +3,9 @@
 #
 # - Verifies Node >= 20 + npm
 # - Installs npm deps + builds the TypeScript sources
+# - Auto-installs Playwright + chromium (~300MB, ~1 min) so /spec-capture
+#   works on first invocation. Skip with --skip-browser if you only need
+#   /spec-init + /spec-build.
 # - Creates the bin/spec-viewer wrapper Claude invokes
 # - Registers each skill at ~/.claude/skills/<name>/SKILL.md (the path
 #   Claude Code actually discovers)
@@ -13,6 +16,22 @@ set -euo pipefail
 
 INSTALL_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="${SPEC_VIEWER_SKILLS_DIR:-$HOME/.claude/skills}"
+
+SKIP_BROWSER=0
+for arg in "$@"; do
+  case "$arg" in
+    --skip-browser) SKIP_BROWSER=1 ;;
+    --help|-h)
+      cat <<'USAGE'
+Usage: ./setup [--skip-browser]
+
+  --skip-browser  Don't auto-install Playwright chromium. Run later with
+                  `npx playwright install chromium` if you want /spec-capture.
+USAGE
+      exit 0
+      ;;
+  esac
+done
 
 # ── Preflight ─────────────────────────────────────────────────────────────────
 NODE_VER=$(node -v 2>/dev/null || echo "v0")
@@ -37,6 +56,34 @@ npm install --silent --no-audit --no-fund
 
 echo "▸ Building TypeScript projects..."
 npm run -s build
+
+# ── Playwright + chromium ────────────────────────────────────────────────────
+# Same approach as gstack's setup: install chromium during ./setup so the
+# user never hits "browser missing" during their first /spec-capture. Plays
+# nicely with `git pull && ./setup` — the install is idempotent.
+ensure_chromium() {
+  node -e "const p=require('playwright').chromium; const fs=require('fs'); const x=p.executablePath(); if(!fs.existsSync(x)) process.exit(1); console.log(x)" 2>/dev/null
+}
+
+if [ "$SKIP_BROWSER" -eq 1 ]; then
+  echo "▸ Skipping Playwright chromium install (--skip-browser)"
+  echo "  Run later with: npx playwright install chromium"
+elif ensure_chromium >/dev/null; then
+  echo "▸ Playwright chromium already installed"
+else
+  echo "▸ Installing Playwright chromium (~300MB, ~1 min)..."
+  if npx --yes playwright install chromium 2>&1 | tail -3; then
+    if ensure_chromium >/dev/null; then
+      echo "  ✓ chromium ready"
+    else
+      echo "  ! chromium install reported success but binary not found; capture may fail" >&2
+      echo "    Run manually: npx playwright install chromium" >&2
+    fi
+  else
+    echo "  ! chromium install failed; /spec-capture will not work until you run" >&2
+    echo "    npx playwright install chromium" >&2
+  fi
+fi
 
 # ── Binary shim ──────────────────────────────────────────────────────────────
 mkdir -p "$INSTALL_DIR/bin"
@@ -76,7 +123,7 @@ echo
 echo "Use in any project:"
 echo "  /spec-init       scaffold config + branding"
 echo "  /spec-theme      tweak colors anytime"
-echo "  /spec-capture    screenshot a running app (needs Playwright in your project)"
+echo "  /spec-capture    screenshot a running app"
 echo "  /spec-build      render the viewer"
 echo
 echo "If skills don't appear in Claude Code, restart the session."

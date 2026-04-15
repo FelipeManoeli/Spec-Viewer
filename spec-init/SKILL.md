@@ -1,6 +1,6 @@
 ---
 name: spec-init
-version: 0.1.1
+version: 0.1.2
 description: Scaffold spec-viewer config and specs folder in the current project
 ---
 
@@ -52,10 +52,9 @@ Read `~/.claude/skills/spec-viewer/_shared/PREAMBLE.md` first — binary discove
 
 6. **Capture-readiness onboarding.** A built viewer with no screenshots looks broken (no thumbnails, no badges). Walk the user through capture before they hit `/spec-build`:
 
-   a. Run `"$SV" doctor` and inspect the Playwright section.
-      - If `! browser binary missing` or `! package not installed`, surface the exact `Fix:` line via AskUserQuestion:
-        > Capture (annotated screenshots) needs Playwright + chromium. They aren't installed yet. The fix is `<copied command>` (~300MB download, ~1 minute).
-        > A) Install now (recommended)  B) Skip — I'll capture later
+   a. Run `"$SV" doctor` and inspect the Playwright section. **Chromium is auto-installed during `./setup`, so it should normally show `✓ chromium ready`.** If it doesn't (user installed with `--skip-browser`, or the install failed), surface the `Fix:` line:
+      > Chromium isn't installed. Run `npx playwright install chromium` (~92MB headless build, ~30s) then re-run `/spec-capture`.
+      > A) Install now  B) Skip — I'll capture later
 
    b. If Playwright is ready, ask about the dev server:
       > Do you have a dev server running for this project? Capture needs it (otherwise the viewer renders with placeholder boxes and no real screenshots).

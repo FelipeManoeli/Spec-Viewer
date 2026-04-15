@@ -15,7 +15,7 @@ Living documentation for your app. Claude maintains the screen specs; you ship a
 
 ## Install — 30 seconds
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Node >= 20, `npm`. Playwright is auto-installed as an optional peer dep (only needed for `/spec-capture`).
+**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Node >= 20, `npm`. `./setup` auto-installs Playwright + chromium-headless-shell (~92MB) so `/spec-capture` works on first invocation. Skip with `./setup --skip-browser` if you only need `/spec-init` and `/spec-build`.
 
 Open Claude Code and paste:
 

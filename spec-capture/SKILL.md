@@ -1,6 +1,6 @@
 ---
 name: spec-capture
-version: 0.1.1
+version: 0.1.2
 description: Drive a real browser via Playwright to screenshot and annotate every spec, producing coverage reports
 ---
 
